@@ -8,13 +8,13 @@ class TippyGameState(GameState):
     '''
     
     def __init__(self, p, interactive=False, \
-                 current_state = [[' ' for x in range(4)] for x in range(4)]):
+                 current_state=[[' ' for x in range(4)] for x in range(4)]):
         '''
         '''
         
         if interactive:
-            size = input('Enter the size of your grid: ') + 1
-            if isinstance(size, int) and size > 2:
+            size = int(input('Enter the size of your grid: '))
+            if isinstance(size, int) and size >= 3:
                 current_state = [[' ' for x in range(size)] \
                                  for x in range(size)]
             else:
@@ -70,3 +70,76 @@ class TippyGameState(GameState):
             else:
                 self.current_state[move.pos[0]][move.pos[1]] = 'O'
             self.next_player = self.opponent()
+            
+    def get_move(self):
+        '''
+        '''
+        
+        move = []
+        #first row taken as 1, then corrected in TippyMove
+        move.append(int(input('Enter the row: ')))
+        move.append(int(input('Enter the column: ')))
+        
+        return TippyMove(move)
+    
+    def possible_next_moves(self):
+        '''
+        '''
+        
+        moves = []
+        for i in range(len(self.current_state)):
+            for j in range(len(self.current_state)):
+                if self.current_state[i][j] == ' ':
+                    moves.append([i+1, j+1])
+                else:
+                    pass
+    
+    def winner(self, player):
+        '''
+        '''
+        
+        return self.check_state() and self.oppornent() == player
+    
+    def check_state(self):
+        '''
+        '''
+        
+        win = False
+        i = 0
+        
+        while not win and i < len(self.current_state) - 2:
+            j = 0
+            while not win and j < len(self.current_state) - 1:
+                if not self.current_state[i][j] == ' ':
+                    place = self.current_state[i][j]
+                    if j < len(self.current_state) - 2:
+                        if self.current_state[i][j+1] == place and \
+                           self.current_state[i+1][j+1] == place and \
+                           self.current_state[i+1][j+2] == place:
+                            win = True
+                        if self.current_state[i][j+1] == place and \
+                           self.current_state[i+1][j] == place and \
+                           self.current_state[i+1][j-1] == place:
+                            win = True
+                    if i < len(self.current_state) - 2:
+                        if self.current_state[i+1][j] == place and \
+                           self.current_state[i+1][j+1] == place and \
+                           self.current_state[i+2][j+1] == place:
+                            win = True
+                        if self.current_state[i+1][j] == place and j > 0:
+                            if self.current_state[i+1][j-1] == place:
+                                if self.current_state[i+2][j-1] == place:
+                                    win = True
+                j += 1
+            i += 1
+            
+        return win
+                           
+            
+                
+    
+    def rough_outcome(self):
+        '''
+        '''
+        
+        pass
