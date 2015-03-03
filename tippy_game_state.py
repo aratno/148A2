@@ -87,12 +87,13 @@ class TippyGameState(GameState):
         '''
         
         moves = []
-        for i in range(len(self.current_state)):
-            for j in range(len(self.current_state)):
-                if self.current_state[i][j] == ' ':
-                    moves.append([i+1, j+1])
-                else:
-                    pass
+        if not self.check_state():
+            for i in range(len(self.current_state)):
+                for j in range(len(self.current_state)):
+                    if self.current_state[i][j] == ' ':
+                        moves.append([i, j])
+        
+        return moves
     
     def winner(self, player):
         '''
@@ -127,9 +128,9 @@ class TippyGameState(GameState):
                            self.current_state[i+2][j+1] == place:
                             win = True
                         if self.current_state[i+1][j] == place and j > 0:
-                            if self.current_state[i+1][j-1] == place:
-                                if self.current_state[i+2][j-1] == place:
-                                    win = True
+                            if self.current_state[i+1][j-1] == place and \
+                               self.current_state[i+2][j-1] == place:
+                                win = True
                 j += 1
             i += 1
             

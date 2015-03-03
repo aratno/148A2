@@ -6,14 +6,15 @@ class TippyMove(Move):
     '''
     
     def __init__(self, pos):
-        ''' (TippyMove, int) -> NoneType
+        ''' (TippyMove, list) -> NoneType
     
         Initialize a new TippyMove for removing amount from value.
 
         Assume: ???
         '''
         
-        self.pos = (pos[0] - 1, pos[1] - 1) #user will enter number from 1 to n
+        self.pos = [pos[0] - 1, pos[1] - 1]
+        #user will enter number from 1 to n
         
     def __repr__(self):
         '''
