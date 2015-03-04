@@ -2,6 +2,7 @@ from game_state import GameState
 from tippy_move import TippyMove
 from math import sqrt
 from random import randint
+from copy import deepcopy
 
 class TippyGameState(GameState):
     '''
@@ -68,13 +69,15 @@ class TippyGameState(GameState):
         '''
         
         if move.pos in self.possible_next_moves():
+            new_state = deepcopy(self.current_state)
             if self.next_player == 'p1':
-                self.current_state[move.pos[0]][move.pos[1]] = 'X'
+                new_state[move.pos[0]][move.pos[1]] = 'X'                
             else:
-                self.current_state[move.pos[0]][move.pos[1]] = 'O'
-            self.next_player = self.opponent()
+                new_state[move.pos[0]][move.pos[1]] = 'O'
         else:
             raise Exception('Not a valid move.')
+        
+        return TippyGameState(self.opponent(), new_state)
             
     def get_move(self):
         '''
@@ -137,6 +140,8 @@ class TippyGameState(GameState):
                 j += 1
             i += 1
             
+        self.over = win
+        
         return win and player == TippyGameState.LET[place]
                            
             
@@ -146,190 +151,80 @@ class TippyGameState(GameState):
         '''
         '''
         
-        L_player = False
-        count = 0
+        player = 0
+        opp = 0
         
         
         place = TippyGameState.PLA[self.next_player]
+        
+        i = 0
+        for i in range(len(self.current_state)):
+            for j in range(len(self.current_state)):
+                if check_tippy1(self.current_state, TippyGameState.PLA[self.current_player], [i, j]):
+                    pass
 
-        #check for psuedo-L-configuration for current player 
-        i = 0
-        while not L_player and i < len(self.current_state) - 1:
-            #avoid edges
-            j = 0
-            while not L_player and j < len(self.current_state) - 1:
-                #avoid edges
-                if self.current_state[i][j] == place:
-                    if self.current_state[i][j+1] == place and \
-                       j < len(self.current_state) - 2:
-                        #checking left
-                        if self.current_state[i+1][j+1] == ' ' and \
-                           self.current_state[i+1][j+2] == place:
-                            #checking left down
-                            L_player = True
-                        elif i > 0: #skipping first row
-                            if self.current_state[i-1][j+1] == ' ' and \
-                               self.current_state[i-1][j+2] == place:
-                                #checking left up
-                                L_player = True
-                    if self.current_state[j+1][j] == place and \
-                         i < len(self.current_state) - 2:
-                        #checking down
-                        if self.current_state[i+1][j+1] == ' ' and \
-                           self.current_state[i+2][j+1] == place:
-                            #checking down right
-                            L_player = True
-                        elif j > 0 : #skipping first column
-                            if self.current_state[i+1][j-1] == ' ' and \
-                               self.current_state[i+2][j-1] == place:
-                                #checking down left
-                                L_player = True
-                else:
-                    j += 1 #iterate along columns
-            i += 1 #iterate along rows
-            
-        #check for L-configuration for current player
-        i = 0
-        while not L_player and i < len(self.current_state) - 1:
-            #avoid edges
-            j = 0
-            while not L_player and j < len(self.current_state) - 1:
-                #avoid edges
-                if self.current_state[i][j] == place:
-                    if self.current_state[i][j+1] == place and \
-                       j < len(self.current_state) - 2:
-                        #checking right
-                        if self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+1][j+2] == ' ':
-                            #checking down right right
-                            L_player = True
-                    if self.current_state[i+1][j] == place and \
-                         i < len(self.current_state) - 2:
-                        #checking down
-                        if self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+2][j+1] == ' ':
-                            #checking down right
-                            L_player = True
-                        elif j > 0: #skipping first column
-                            if self.current_state[i+1][j-1] == place and \
-                               self.current_state[i+2][j-1] == ' ':
-                                #checking down left
-                                L_player = True
-                    if self.current_state[i][j+1] == place and \
-                       self.current_state[i+1][j] == place:
-                        #checking down and right at the same time
-                        if j > 0: #skipping first column
-                            if self.current_state[i+1][j-1] == ' ':
-                                #checking down left
-                                L_player = True
-                        if i > 0: #skipping first row
-                            if self.current_state[i-1][j+1] == ' ':
-                                #checking right u[
-                                L_player = True
-                    if j > 0:
-                        if self.current_state[i+1][j-1] == place and \
-                           self.current_state[i+1][j] == place and \
-                           self.current_state[i][j+1] == ' ':
-                            #checking down and down left, then right
-                            L_player = True
-                else:
-                    j += 1 #iterate along columns
-            i += 1 #iterate along rows
-                            
-        
-        place = TippyGameState.PLA[self.opponent()]
-        
-        #check for psuedo-L-configuration for opponent 
-        i = 0
-        while i < len(self.current_state) - 1:
-            #avoid edges
-            j = 0
-            while j < len(self.current_state) - 1:
-                #avoid edges
-                if self.current_state[i][j] == place:
-                    if self.current_state[i][j+1] == place and \
-                       j < len(self.current_state) - 2:
-                        #checking left
-                        if self.current_state[i+1][j+1] == ' ' and \
-                           self.current_state[i+1][j+2] == place:
-                            #checking left down
-                            count += 1
-                        if i > 0: #skipping first row
-                            if self.current_state[i-1][j+1] == ' ' and \
-                               self.current_state[i-1][j+2] == place:
-                                #checking left up
-                                count += 1
-                    
-                    if self.current_state[j+1][j] == place and \
-                         i < len(self.current_state) - 2:
-                        #checking down
-                        if self.current_state[i+1][j+1] == ' ' and \
-                           self.current_state[i+2][j+1] == place:
-                            #checking down right
-                            count += 1
-                        if j > 0 : #skipping first column
-                            if self.current_state[i+1][j-1] == ' ' and \
-                               self.current_state[i+2][j-1] == place:
-                                #checking down left
-                                count += 1
-                else:
-                    j += 1 #iterate along columns
-            i += 1 #iterate along rows
-            
-        #check for L-configuration for opponent
-        i = 0
-        while i < len(self.current_state) - 1:
-            #avoid edges
-            j = 0
-            while j < len(self.current_state) - 1:
-                #avoid edges
-                if self.current_state[i][j] == place:
-                    if self.current_state[i][j+1] == place and \
-                       j < len(self.current_state) - 2:
-                        #checking right
-                        if self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+1][j+2] == ' ':
-                            #checking down right right
-                            count += 1
-                        
-                    if self.current_state[i+1][j] == place and \
-                         i < len(self.current_state) - 2:
-                        #checking down
-                        if self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+2][j+1] == ' ':
-                            #checking down right
-                            count += 1
-                        if j > 0: #skipping first column
-                            if self.current_state[i+1][j-1] == place and \
-                               self.current_state[i+2][j-1] == ' ':
-                                #checking down left
-                                count += 1
-                    
-                    if self.current_state[i][j+1] == place and \
-                       self.current_state[i+1][j] == place:
-                        #checking down and right at the same time
-                        if j > 0: #skipping first column
-                            if self.current_state[i+1][j-1] == ' ':
-                                #checking down left
-                                count += 1
-                        if i > 0: #skipping first row
-                            if self.current_state[i-1][j+1] == ' ':
-                                #checking right up
-                                count += 1
-                    
-                    if j > 0:
-                        if self.current_state[i+1][j-1] == place and \
-                           self.current_state[i+1][j] == place and \
-                           self.current_state[i][j+1] == ' ':
-                            #checking down and down left, then right
-                            count += 1
-                else:
-                    j += 1 #iterate along columns
-            i += 1 #iterate along rows        
-        
-        if L_player:
-            return TippyGameState.WIN
-        elif count >= 2:
-            return TippyGameState.LOSE
+
+def check_tippy1(state, sym, pos):
+    ''' state, str, pos
+    '''
+    
+    try:
+        if all([state[pos[0]][pos[1]] in [sym, ' '], \
+               state[pos[0]+1][pos[1]] in [sym, ' '], \
+               state[pos[0]+1][pos[1]+1] in [sym, ' '], \
+               state[pos[0]+2][pos[1]+1] in [sym, ' ']]):
+            return True
         else:
-            return TippyGameState.DRAW
+            return False
+    
+    except IndexError:
+        return False
+
+def check_tippy2(state, sym, pos):
+    '''
+    '''
+    
+    try:
+        if all([state[pos[0]][pos[1]] in [sym, ' '], \
+               state[pos[0]+1][pos[1]] in [sym, ' '], \
+               state[pos[0]+1][pos[1]-1] in [sym, ' '], \
+               state[pos[0]+2][pos[1]-1] in [sym, ' ']]):
+            return True
+        else:
+            return False
+    
+    except IndexError:
+        return False
+        
+
+def check_tippy3(state, sym, pos):
+    '''
+    '''
+    
+    try:
+        if all([state[pos[0]][pos[1]] in [sym, ' '], \
+               state[pos[0]][pos[1]+1] in [sym, ' '], \
+               state[pos[0]-1][pos[1]+1] in [sym, ' '], \
+               state[pos[0]-1][pos[1]+2] in [sym, ' ']]):
+            return True
+        else:
+            return False
+    
+    except IndexError:
+        return False
+
+def check_tippy4(state, sym, pos):
+    '''
+    '''
+    
+    try:
+        if all([state[pos[0]][pos[1]] in [sym, ' '], \
+               state[pos[0]][pos[1]+1] in [sym, ' '], \
+               state[pos[0]+1][pos[1]+1] in [sym, ' '], \
+               state[pos[0]+1][pos[1]+2] in [sym, ' ']]):
+            return True
+        else:
+            return False
+    
+    except IndexError:
+        return False
