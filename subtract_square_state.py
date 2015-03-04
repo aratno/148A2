@@ -23,6 +23,7 @@ class SubtractSquareState(GameState):
             current_total = randint(1, int(input('Maximum starting value? ')))
         GameState.__init__(self, p)
         self.current_total = current_total
+        self.over = (current_total < 1)
         self.instructions = ('On your turn, you may remove any number so long '
                              'as it is (a) a perfect square, and '
                              '(b) no more than the current number.')

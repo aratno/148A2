@@ -27,7 +27,7 @@ class GameView:
         print(self.state.instructions)
         print(self.state)
         print()
-        while self.state.possible_next_moves():
+        while not self.state.over:
             if self.state.next_player == 'p1':
                 m = self.state.get_move()
                 while not m in self.state.possible_next_moves():
