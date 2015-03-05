@@ -26,7 +26,7 @@ class TippyMove(Move):
         '''
         return 'Row: {}  Column: {}'.format(self.pos[0],self.pos[1]) 
     
-    def __eq__(self):
+    def __eq__(self, other):
         '''
         '''
         return (isinstance(other, TippyMove) and 
