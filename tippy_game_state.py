@@ -4,6 +4,7 @@ from math import sqrt
 from random import randint
 from copy import deepcopy
 
+
 class TippyGameState(GameState):
     ''' The state of the Tippy game
     
@@ -12,7 +13,7 @@ class TippyGameState(GameState):
     
     PLAYER = {'p1': 'X', 'p2': 'O'}
     
-    def __init__(self, p, interactive=False, \
+    def __init__(self, p, interactive=False,
                  current_state=[[' ' for i in range(3)] for i in range(3)]):
         ''' (TippyGameState, str, list) -> Nonetype
         
@@ -31,8 +32,8 @@ class TippyGameState(GameState):
             
         GameState.__init__(self, p)
         self.current_state = current_state
-        self.over = self.winner('p1') or self.winner('p2') or not \
-            self.possible_next_moves()
+        self.over = (self.winner('p1') or self.winner('p2') or not \
+            self.possible_next_moves())
         self.instructions = ('Enter the row number and then the column ' 
                              'number of the location where you wish to '
                              'make your move. The objective is to make '
@@ -69,17 +70,17 @@ class TippyGameState(GameState):
         Next to play: p1
         '''
         
-        size = len(self.current_state) #assign variable to shorten lines
+        size = len(self.current_state)  # assign variable to shorten lines
         grid = ''
-        for i in range(size): #iterate through rows
-            for j in range(size): #print row with vertical bars
+        for i in range(size):  # iterate through rows
+            for j in range(size):  # print row with vertical bars
                 grid += self.current_state[i][j]
                 if j != size - 1:
                     grid += '|'
             
             grid += '\n'
             if i != size - 1: 
-                for k in range(2*size - 1): #print line in between rows
+                for k in range(2 * size - 1):  # print line in between rows
                     grid += '-'
                 grid += '\n'
                 
@@ -133,12 +134,6 @@ class TippyGameState(GameState):
         ''' (TippyGameState) -> TippyMove
 
         Prompt user and return move.
-        
-        >>> t = TippyGameState('p1')
-        >>> t.get_move()
-        Enter the row (1 to 3): 2
-        Enter the column (1 to 3): 2
-        TippyMove([2, 2])
         '''
         
         move = []
@@ -179,7 +174,7 @@ class TippyGameState(GameState):
         
         >>> s1 = TippyGameState('p1')
         >>> s2 = s1.apply_move(TippyMove([1,1]))
-        >>> s2.winner('p1)
+        >>> s2.winner('p1')
         False
         
         Precondition: player is either 'p1' or 'p2'
@@ -188,16 +183,17 @@ class TippyGameState(GameState):
         win = False
         
         i = 0        
-        while not win and i < len(self.current_state): #iterate through rows
+        while not win and i < len(self.current_state):
+            #iterate through rows
             j = 0
-            while not win and j < len(self.current_state): #iterate thru cols
+            while not win and j < len(self.current_state):
+                #iterate through columns
                 win = find_tippy(self.current_state,
                                  TippyGameState.PLAYER[player], [i, j])
                 #determine if tippy has been formed at this position
                 j += 1
             i += 1
         return win
-    
     
     def rough_outcome(self):
         ''' (TippyGamestate) -> float
@@ -224,15 +220,17 @@ class TippyGameState(GameState):
         opp_outcome = [i.winner(opp.next_player) for i in new_opp]
         #determine which of these are losing states (for next_player)
         
-        wins = float(len([i for i in outcome if i]))
+        wins = float(len([i for i in win_outcome if i]))
         losses = float(len([i for i in opp_outcome if i]))
         
         try:
-            num = 2*wins/(wins + losses) - 1 #scale value into [LOSE, WIN]
+            num = 2 * wins / (wins + losses) - 1
+            #scale value into [LOSE, WIN]
         except ZeroDivisionError:
             num = 0.0
         
         return num  
+
 
 def find_tippy(state, sym, pos):
     ''' (list, str, list) -> bool
@@ -242,7 +240,7 @@ def find_tippy(state, sym, pos):
     Helper function for TippyGameState.winner().
     
     >>> s1 = TippyGameState('p1')
-    >>> temp = s1.current_state
+    >>> temp = deepcopy(s1.current_state)
     >>> temp[0][0] = 'X'
     >>> temp[0][1] = 'X'
     >>> temp[1][1] = 'X'
@@ -261,40 +259,39 @@ def find_tippy(state, sym, pos):
     #there are only four tippy configurations we need to check
     
     if state[x][y] == sym:
-        try: #search for right-rightdown-rightrightdown tippy
-            if all([state[x][y + 1] == sym, \
-                    state[x + 1][y + 1] == sym, \
+        try:  # search for right-rightdown-rightrightdown tippy
+            if all([state[x][y + 1] == sym,
+                    state[x + 1][y + 1] == sym,
                     state[x + 1][y + 2] == sym]):
                 tippy = True
         except IndexError:
             pass
         
-        try: #search for right-down-leftdown tippy       
-            if all([state[x][y + 1] == sym, \
-                     state[x + 1][y] == sym, \
-                     state[x + 1][y - 1] == sym]):
+        try:  # search for right-down-leftdown tippy       
+            if all([state[x][y + 1] == sym,
+                    state[x + 1][y] == sym,
+                    state[x + 1][y - 1] == sym]):
                 tippy = True
         except IndexError:
             pass
         
-        try: #search for down-rightdown-rightdowndown tippy
-            if all([state[x + 1][y] == sym, \
-                     state[x + 1][y + 1] == sym, \
-                     state[x + 2][y + 1] == sym]):
+        try:  # search for down-rightdown-rightdowndown tippy
+            if all([state[x + 1][y] == sym,
+                    state[x + 1][y + 1] == sym,
+                    state[x + 2][y + 1] == sym]):
                 tippy = True
         except IndexError:
             pass
         
-        try: #search for down-leftdown-leftdowndown tippy
-            if all([state[x + 1][y] == sym, \
-                     state[x + 1][y - 1] == sym, \
-                     state[x + 2][y - 1] == sym]):
+        try:  # search for down-leftdown-leftdowndown tippy
+            if all([state[x + 1][y] == sym,
+                    state[x + 1][y - 1] == sym,
+                    state[x + 2][y - 1] == sym]):
                 tippy = True
         except IndexError:
             pass
     
     return tippy
-
 
 if __name__ == '__main__':
     import doctest

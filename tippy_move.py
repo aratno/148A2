@@ -1,5 +1,6 @@
 from move import Move
 
+
 class TippyMove(Move):
     ''' A move in the game of Tippy.
     
@@ -38,7 +39,7 @@ class TippyMove(Move):
         >>> print(p) 
         Row: 1  Column: 1
         '''
-        return 'Row: {}  Column: {}'.format(self.pos[0] + 1,self.pos[1] + 1) 
+        return 'Row: {}  Column: {}'.format(self.pos[0] + 1, self.pos[1] + 1) 
     
     def __eq__(self, other):
         ''' (TippyMove, TippyMove) -> bool
