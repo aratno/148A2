@@ -5,7 +5,9 @@ from random import randint
 from copy import deepcopy
 
 class TippyGameState(GameState):
-    '''
+    ''' The state of the Tippy game
+    
+    current_state is nxn array of current board
     '''
     
     PLAYER = {'p1': 'X', 'p2': 'O'}
@@ -13,6 +15,12 @@ class TippyGameState(GameState):
     def __init__(self, p, interactive=False, \
                  current_state=[[' ' for x in range(4)] for x in range(4)]):
         '''
+        (TippyGameState, str, list) --> Nonetype
+        
+        Initializes TippyGameState with current_state as the n by n grid
+        
+        Assume p is in {'p1','p2'}
+               that len(current_state) > 3 so the game can be won
         '''
         
         if interactive:
@@ -31,6 +39,15 @@ objective is to make a tippy.'
         
     def __repr__(self):
         '''
+        (TippyGameState) --> str
+        
+        Returns the sring representation of TippyGameState that evaluates to 
+        to an equivalent SubtractSquareState
+        
+        >>> t = TippyGameState('p1')
+        >>> t
+        TippyGameState('p1', [[' ', ' ', ' ', ' '], [' ', ' ', ' ', ' '], \
+        [' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ']])
         '''
         
         return 'TippyGameState({}, {})'.format(repr(self.next_player), \
@@ -38,17 +55,30 @@ objective is to make a tippy.'
     
     def __str__(self):
         '''
+        (TippyGameState) --> str
+        
+        Returns a grid resembling what the tippy game should look like
+        
+        >>>t = TippyGameState('p1')
+        >>>print(t)
+         | | | 
+        -------
+         | | | 
+        -------
+         | | | 
+        -------
+         | | | 
         '''
         
         grid = ''
-        for i in range(len(self.current_state)):
+        for i in range(len(self.current_state)):#prints row with vertical bars
             for j in range(len(self.current_state)):
                 grid += self.current_state[i][j]
                 if j != len(self.current_state) - 1:
                     grid += '|'
             
             grid += '\n'
-            if i != len(self.current_state) - 1:
+            if i != len(self.current_state) - 1: #prints line inbetween rows
                 for k in range(2*len(self.current_state) - 1):
                     grid += '-'
                 grid += '\n'
@@ -57,6 +87,14 @@ objective is to make a tippy.'
     
     def __eq__(self, other):
         '''
+        (TippyGameState, TippyGameState) -> bool
+
+        Return True iff this TippyGameState is the equivalent to other.
+
+        >>> s1 = TippyGameState('p1')
+        >>> s2 = TippyGameState('p1')
+        >>> s1 == s2
+        True
         '''
         
         return (isinstance(other, TippyGameState) and
@@ -64,7 +102,20 @@ objective is to make a tippy.'
                 self.next_player == other.next_player)
     
     def apply_move(self, move):
-        '''
+        '''(TippyGameState, TippyeMove) -> TippyGameState
+
+        Return the new TippyGameState reached by applying move to self
+        
+        >>> s1 = TippyGameState('p1')
+        >>> s2 = s1.apply_move(TippyMove([1,1]))
+        >>> print(s2)
+        X| | | 
+        -------
+         | | | 
+        -------
+         | | | 
+        -------
+         | | | 
         '''
         
         new_state = deepcopy(self.current_state)
@@ -86,6 +137,15 @@ objective is to make a tippy.'
             
     def get_move(self):
         '''
+        (TippyGameState) -> TippyMove
+
+        Prompt user and return move.
+        
+        >>>t = TippyGameState('p1')
+        >>>t.get_move()
+        Enter the row: 2
+        Enter the column: 2
+        TippyMove([1, 1])
         '''
         
         move = []
@@ -97,6 +157,20 @@ objective is to make a tippy.'
     
     def possible_next_moves(self):
         '''
+        (TippyGameState) -> list of TippyMove
+
+        Return a (possibly empty) list of moves that are legal
+        from the present state.
+        >>> s1 = TippyGameState('p1')
+        >>> s2 = s1.apply_move(TippyMove([1,1]))
+        >>> s2.list_possible_next_moves()
+        [TippyMove([0, 0]), TippyMove([0, 1]), TippyMove([0, 2]), \
+        TippyMove([0, 3]), TippyMove([1, 0]), TippyMove([1, 1]), \
+        TippyMove([1, 2]), TippyMove([1, 3]), TippyMove([2, 0]), \
+        TippyMove([2, 1]), TippyMove([2, 2]), TippyMove([2, 3]), \
+        TippyMove([3, 0]), TippyMove([3, 1]), TippyMove([3, 2]), \
+        TippyMove([3, 3])]
+
         '''
         
         moves = []
@@ -110,6 +184,14 @@ objective is to make a tippy.'
     
     def winner(self, player):
         '''
+        (TippyGameState,str) --> bool
+        
+        Returns True if a tippy has been formed and player has won
+        
+        >>> s1 = TippyGameState('p1')
+        >>> s2 = s1.apply_move(TippyMove([1,1]))
+        >>> s2.winner('p1)
+        False
         '''
         
         win = False
@@ -129,8 +211,16 @@ objective is to make a tippy.'
     
     def rough_outcome(self):
         '''
+        (TippyGamestate) --> float
         
-        If game is over, returns 0.0
+        Returns and estimate in the interval [LOSE,WIN] that gives number of
+        potential winning configs for each player. If game is over, returns 0.0
+        
+        s1 = TippyGameState('p1')
+
+        s2 = s1.apply_move(TippyMove([1,1]))
+        s2.rough_outcome()
+        'Wins: 0.0, Losses: 0.0, Number: 0'
         '''
         
         new_states = [self.apply_move(i) for i in self.possible_next_moves()]
@@ -153,6 +243,18 @@ objective is to make a tippy.'
 
 def find_tippy(state, sym, pos):
     '''
+    (list,str,list) --> bool
+    
+    returns True if a Tippy has been formed starting at position pos
+    
+    >>>s1 = TippyGameState('p1')
+    >>>temp = s1.current_state
+    >>>temp[0][0] = 'X'
+    >>>temp[0][1] = 'X'
+    >>>temp[1][1] = 'X'
+    >>>temp[1][2] = 'X'
+    >>>find_tippy(temp,'X',[0,0])
+    True
     '''
     
     x, y = pos[0], pos[1]

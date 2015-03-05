@@ -1,15 +1,16 @@
 from strategy import Strategy
 
-from tippy_game_state import TippyGameState
-from tippy_move import TippyMove
-
-from subtract_square_state import SubtractSquareState
-from subtract_square_move import SubtractSquareMove
 class StrategyMinimax(Strategy):
     """
+    Interface to suggest random moves
     """
     def suggest_move(self,state):
         """
+        (StrategyMinimax, GameState) -> Move
+
+        Return a move implemeting minimax from those available for state.
+
+        Overrides Strategy.suggest_move
         """
         temp = state.possible_next_moves()[0]
         win = state.WIN
@@ -27,6 +28,13 @@ class StrategyMinimax(Strategy):
         
     def minimax(self,state):
         """
+        (StrategyMinimax, GameState) -> float
+        
+        Returns a float depending on if their exists a winning strategy for 
+        player:
+        If player has winning strategy, then return 1.0 otherwise
+        if player can draw return 0.0
+        else return -1.0
         """
         
         if state.winner('p1'):
