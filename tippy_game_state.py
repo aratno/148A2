@@ -77,7 +77,12 @@ class TippyGameState(GameState):
         else:
             raise Exception('Not a valid move.')
         
-        return TippyGameState(self.opponent(), False, new_state)
+        new = TippyGameState(self.opponent(), False, new_state)
+        
+        new.over =  new.winner('p1') or new.winner('p2') or not \
+            new.possible_next_moves()
+        
+        return new
             
     def get_move(self):
         '''
