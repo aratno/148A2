@@ -8,7 +8,7 @@ class TippyGameState(GameState):
     '''
     '''
     
-    LETTER = {'X': 'p1', 'O': 'p2'}
+    PLAYER = {'p1': 'X', 'p2': 'O'}
     
     def __init__(self, p, interactive=False, \
                  current_state=[[' ' for x in range(4)] for x in range(4)]):
@@ -67,8 +67,9 @@ class TippyGameState(GameState):
         '''
         '''
         
+        new_state = deepcopy(self.current_state)
+        
         if move in self.possible_next_moves():
-            new_state = deepcopy(self.current_state)
             if self.next_player == 'p1':
                 new_state[move.pos[0]][move.pos[1]] = 'X'                
             else:
@@ -76,7 +77,7 @@ class TippyGameState(GameState):
         else:
             raise Exception('Not a valid move.')
         
-        return TippyGameState(self.opponent(), new_state)
+        return TippyGameState(self.opponent(), False, new_state)
             
     def get_move(self):
         '''
@@ -102,63 +103,88 @@ class TippyGameState(GameState):
         
         return moves
     
-    '''def winner(self, player):
-        
-        return self.check_state() and self.opponent() == player'''
-    
     def winner(self, player):
         '''
         '''
         
         win = False
-        i = 0
         
-        while not win and i < len(self.current_state) - 2:
+        i = 0        
+        while not win and i < len(self.current_state):
             j = 0
-            while not win and j < len(self.current_state) - 1:
-                if not self.current_state[i][j] == ' ':
-                    place = self.current_state[i][j]
-                    if j < len(self.current_state) - 2:
-                        if self.current_state[i][j+1] == place and \
-                           self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+1][j+2] == place:
-                            win = True
-                        if self.current_state[i][j+1] == place and \
-                           self.current_state[i+1][j] == place and \
-                           self.current_state[i+1][j-1] == place:
-                            win = True
-                    if i < len(self.current_state) - 2:
-                        if self.current_state[i+1][j] == place and \
-                           self.current_state[i+1][j+1] == place and \
-                           self.current_state[i+2][j+1] == place:
-                            win = True
-                        if self.current_state[i+1][j] == place and j > 0:
-                            if self.current_state[i+1][j-1] == place and \
-                               self.current_state[i+2][j-1] == place:
-                                win = True
+            while not win and j < len(self.current_state):
+                win = find_tippy(self.current_state, \
+                                 TippyGameState.PLAYER[player], \
+                                 [i, j])
                 j += 1
             i += 1
-            
-        self.over = win
-        
-        return win and player == TippyGameState.LETTER[place]
-                           
-            
                 
+        return win
+    
     
     def rough_outcome(self):
         '''
+        
+        If game is over, returns 0.0
         '''
         
         new_states = [self.apply_move(i) for i in self.possible_next_moves()]
         outcome = [i.winner(self.next_player) for i in new_states]
         
-        opp = TippyGameState(self.opponent(), self.current_state)
+        opp = TippyGameState(self.opponent(), False, self.current_state)
         new_opp = [opp.apply_move(i) for i in opp.possible_next_moves()]
+        opp_outcome = [i.winner(opp.next_player) for i in new_opp]
         
         wins = float(len([i for i in outcome if i]))
-        losses = float(len([i for i in new_opp if i]))
+        losses = float(len([i for i in opp_outcome if i]))
         
-        return (wins - losses)/(max([abs(wins), abs(losses)]))
+        try:
+            num = 2*wins/(wins + losses) - 1
+        except ZeroDivisionError:
+            num = 0
         
+        return 'Wins: {}, Losses: {}, Number: {}'.format(wins, losses, num)
         
+
+def find_tippy(state, sym, pos):
+    '''
+    '''
+    
+    x, y = pos[0], pos[1]
+    
+    tippy = False
+    
+    if state[x][y] == sym:
+        try:
+            if all([state[x][y + 1] == sym, \
+                    state[x + 1][y + 1] == sym, \
+                    state[x + 1][y + 2] == sym]):
+                tippy = True
+        except IndexError:
+            pass
+        
+        try:            
+            if all([state[x][y + 1] == sym, \
+                     state[x + 1][y] == sym, \
+                     state[x + 1][y - 1] == sym]):
+                tippy = True
+        except IndexError:
+            pass
+        
+        try:
+            if all([state[x + 1][y] == sym, \
+                     state[x + 1][y + 1] == sym, \
+                     state[x + 2][y + 1] == sym]):
+                tippy = True
+        except IndexError:
+            pass
+        
+        try:        
+            if all([state[x + 1][y] == sym, \
+                     state[x + 1][y - 1] == sym, \
+                     state[x + 2][y - 1] == sym]):
+                tippy = True
+        except IndexError:
+            pass
+    
+    return tippy
