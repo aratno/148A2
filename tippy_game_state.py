@@ -25,9 +25,9 @@ class TippyGameState(GameState):
             
         GameState.__init__(self, p)
         self.current_state = current_state
-        self.instructions = 'Enter the column number and then the row \
-        number of the location where you wish to make your move. The \
-        objective is to make a tippy.'
+        self.instructions = 'Enter the row number and then the column \
+number of the location where you wish to make your move. The \
+objective is to make a tippy.'
         
     def __repr__(self):
         '''

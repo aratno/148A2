@@ -11,7 +11,7 @@ class GameView:
         Create GameView self for game described by state, where
         computer uses given strategy.
         '''
-        player = input('Type c if you wish the computer to play first ')
+        player = input('Type c if you wish the computer to play first: ')
         if player == 'c':
             p = 'p2'
         else:
@@ -42,7 +42,7 @@ class GameView:
                 m = self.strategy.suggest_move(self.state)
                 print('The computer chooses: {}'.format(m))
             self.state = self.state.apply_move(m)
-            print('New game state: ', str(self.state))
+            print('New game state: \n' + str(self.state))
             print()
 
         if self.state.winner('p2'):
@@ -57,13 +57,15 @@ class GameView:
 
 if __name__ == '__main__':
     from subtract_square_state import SubtractSquareState
-    game_state = ({'s': SubtractSquareState})
+    from tippy_game_state import TippyGameState, find_tippy
+    game_state = {'s': SubtractSquareState, 't': TippyGameState}
     from strategy_random import StrategyRandom
-    strategy = ({'r': StrategyRandom})
+    from strategy_minimax import StrategyMinimax
+    strategy = {'r': StrategyRandom, 'm': StrategyMinimax}
     g = ''
     while not g in game_state.keys():
-        g = input('s to play Subtract Square, ')
+        g = input('Enter s to play Subtract Square, t to play Tippy: ')
     s = ''
     while not s in strategy.keys():
-        s = input('r for random strategy for computer: ')
+        s = input('Enter r for random strategy for computer, m for minimax: ')
     GameView(game_state[g], strategy[s]).play()

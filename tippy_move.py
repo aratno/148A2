@@ -24,7 +24,7 @@ class TippyMove(Move):
     def __str__(self):
         '''
         '''
-        return 'Row: {}  Column: {}'.format(self.pos[0],self.pos[1]) 
+        return 'Row: {}  Column: {}'.format(self.pos[0] + 1,self.pos[1] + 1) 
     
     def __eq__(self, other):
         '''
