@@ -136,16 +136,17 @@ class TippyGameState(GameState):
         
         >>> t = TippyGameState('p1')
         >>> t.get_move()
-        Enter the row: 2
-        Enter the column: 2
-        TippyMove([1, 1])
+        Enter the row (1 to 3): 2
+        Enter the column (1 to 3): 2
+        TippyMove([2, 2])
         '''
         
         move = []
         #first row or column taken as 1, then corrected in TippyMove
+        size = len(self.current_state)
         
-        move.append(int(input('Enter the row (1 to n): ')))
-        move.append(int(input('Enter the column (1 to n): ')))
+        move.append(int(input('Enter the row (1 to {}): '.format(size))))
+        move.append(int(input('Enter the column (1 to {}): '.format(size))))
         
         return TippyMove(move)
     
@@ -231,8 +232,7 @@ class TippyGameState(GameState):
         except ZeroDivisionError:
             num = 0.0
         
-        return num
-        
+        return num  
 
 def find_tippy(state, sym, pos):
     ''' (list, str, list) -> bool
@@ -294,6 +294,7 @@ def find_tippy(state, sym, pos):
             pass
     
     return tippy
+
 
 if __name__ == '__main__':
     import doctest
