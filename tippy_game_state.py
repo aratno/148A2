@@ -8,8 +8,7 @@ class TippyGameState(GameState):
     '''
     '''
     
-    LET = {'X': 'p1', 'O': 'p2'}
-    PLA = {'p1': 'X', 'p2': 'O'}
+    LETTER = {'X': 'p1', 'O': 'p2'}
     
     def __init__(self, p, interactive=False, \
                  current_state=[[' ' for x in range(4)] for x in range(4)]):
@@ -68,7 +67,7 @@ class TippyGameState(GameState):
         '''
         '''
         
-        if move.pos in self.possible_next_moves():
+        if move in self.possible_next_moves():
             new_state = deepcopy(self.current_state)
             if self.next_player == 'p1':
                 new_state[move.pos[0]][move.pos[1]] = 'X'                
@@ -99,7 +98,7 @@ class TippyGameState(GameState):
             for i in range(len(self.current_state)):
                 for j in range(len(self.current_state)):
                     if self.current_state[i][j] == ' ':
-                        moves.append([i, j])
+                        moves.append(TippyMove([i + 1, j + 1]))
         
         return moves
     
@@ -142,7 +141,7 @@ class TippyGameState(GameState):
             
         self.over = win
         
-        return win and player == TippyGameState.LET[place]
+        return win and player == TippyGameState.LETTER[place]
                            
             
                 
@@ -151,80 +150,15 @@ class TippyGameState(GameState):
         '''
         '''
         
-        player = 0
-        opp = 0
+        new_states = [self.apply_move(i) for i in self.possible_next_moves()]
+        outcome = [i.winner(self.next_player) for i in new_states]
+        
+        opp = TippyGameState(self.opponent(), self.current_state)
+        new_opp = [opp.apply_move(i) for i in opp.possible_next_moves()]
+        
+        wins = float(len([i for i in outcome if i]))
+        losses = float(len([i for i in new_opp if i]))
+        
+        return (wins - losses)/(max([abs(wins), abs(losses)]))
         
         
-        place = TippyGameState.PLA[self.next_player]
-        
-        i = 0
-        for i in range(len(self.current_state)):
-            for j in range(len(self.current_state)):
-                if check_tippy1(self.current_state, TippyGameState.PLA[self.current_player], [i, j]):
-                    pass
-
-
-def check_tippy1(state, sym, pos):
-    ''' state, str, pos
-    '''
-    
-    try:
-        if all([state[pos[0]][pos[1]] in [sym, ' '], \
-               state[pos[0]+1][pos[1]] in [sym, ' '], \
-               state[pos[0]+1][pos[1]+1] in [sym, ' '], \
-               state[pos[0]+2][pos[1]+1] in [sym, ' ']]):
-            return True
-        else:
-            return False
-    
-    except IndexError:
-        return False
-
-def check_tippy2(state, sym, pos):
-    '''
-    '''
-    
-    try:
-        if all([state[pos[0]][pos[1]] in [sym, ' '], \
-               state[pos[0]+1][pos[1]] in [sym, ' '], \
-               state[pos[0]+1][pos[1]-1] in [sym, ' '], \
-               state[pos[0]+2][pos[1]-1] in [sym, ' ']]):
-            return True
-        else:
-            return False
-    
-    except IndexError:
-        return False
-        
-
-def check_tippy3(state, sym, pos):
-    '''
-    '''
-    
-    try:
-        if all([state[pos[0]][pos[1]] in [sym, ' '], \
-               state[pos[0]][pos[1]+1] in [sym, ' '], \
-               state[pos[0]-1][pos[1]+1] in [sym, ' '], \
-               state[pos[0]-1][pos[1]+2] in [sym, ' ']]):
-            return True
-        else:
-            return False
-    
-    except IndexError:
-        return False
-
-def check_tippy4(state, sym, pos):
-    '''
-    '''
-    
-    try:
-        if all([state[pos[0]][pos[1]] in [sym, ' '], \
-               state[pos[0]][pos[1]+1] in [sym, ' '], \
-               state[pos[0]+1][pos[1]+1] in [sym, ' '], \
-               state[pos[0]+1][pos[1]+2] in [sym, ' ']]):
-            return True
-        else:
-            return False
-    
-    except IndexError:
-        return False
