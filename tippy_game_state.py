@@ -32,8 +32,8 @@ class TippyGameState(GameState):
             
         GameState.__init__(self, p)
         self.current_state = current_state
-        self.over = (self.winner('p1') or self.winner('p2') or not \
-            self.possible_next_moves())
+        self.over = (self.winner('p1') or self.winner('p2') or not 
+                     self.possible_next_moves())
         self.instructions = ('Enter the row number and then the column ' 
                              'number of the location where you wish to '
                              'make your move. The objective is to make '
